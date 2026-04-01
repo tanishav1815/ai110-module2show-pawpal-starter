@@ -6,14 +6,14 @@
 
 The initial UML includes four classes:
 
-- **Task** (dataclass): holds a single care action — title, duration, priority, and category. Responsible for knowing whether it fits in a time budget (`is_doable`) and describing itself.
-- **Pet** (dataclass): holds pet identity (name, species, age, special needs) and owns a list of Tasks. Responsible for managing and exposing its task list.
-- **Owner** (dataclass): holds owner identity, total available minutes per day, and preferences. Responsible for managing a list of Pets.
-- **Scheduler**: takes an Owner and a Pet, then builds an ordered daily plan (`build_plan`) and explains it in plain English (`explain_plan`). It is the only class with scheduling logic.
+- Task (dataclass): holds a single care action — title, duration, priority, and category. Responsible for knowing whether it fits in a time budget (`is_doable`) and describing itself.
+- Pet (dataclass): holds pet identity (name, species, age, special needs) and owns a list of Tasks. Responsible for managing and exposing its task list.
+- Owner (dataclass): holds owner identity, total available minutes per day, and preferences. Responsible for managing a list of Pets.
+- Scheduler: takes an Owner and a Pet, then builds an ordered daily plan (`build_plan`) and explains it in plain English (`explain_plan`). It is the only class with scheduling logic.
 
 Relationships: Owner → Pet (one-to-many), Pet → Task (one-to-many), Scheduler uses Owner + Pet to produce a plan.
 
-**b. Design changes**
+b. Design changes
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
