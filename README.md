@@ -41,6 +41,25 @@ PawPal+ goes beyond a simple task list with four algorithmic features:
 - **Recurring tasks** — `Task.mark_complete()` auto-generates the next occurrence for `daily` or `weekly` tasks using Python's `timedelta`, so nothing falls off the radar.
 - **Conflict detection** — `Scheduler.detect_conflicts()` compares scheduled `start_time` slots and returns plain-English warnings when two tasks overlap, without crashing the app.
 
+## Testing PawPal+
+
+Run the full test suite with:
+
+```bash
+python -m pytest
+```
+
+The suite covers 22 tests across four areas:
+
+| Area | What's tested |
+|---|---|
+| **Task** | `is_doable` true/false, `mark_complete` status flip, daily/weekly recurrence creates next task, one-time returns `None` |
+| **Pet** | Task count after `add_task`, `filter_tasks` for pending / completed / all |
+| **Scheduler** | Time budget respected, priority ordering (high → medium → low), same-priority shorter-first, completed tasks excluded, empty plan when no time or no tasks |
+| **Algorithms** | `sort_by_duration` order, conflict detection for overlapping and exact-same start times, no false positives on clean schedules |
+
+**Confidence: ★★★★☆** — Core scheduling logic, recurrence, sorting, filtering, and conflict detection are all verified. Next edge cases to explore: tasks that span midnight, pets with 10+ tasks under a very tight budget, and concurrent scheduling across multiple pets.
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.

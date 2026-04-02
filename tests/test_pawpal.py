@@ -195,3 +195,61 @@ def test_detect_conflicts_none():
 
     owner.add_pet(pet)
     assert Scheduler(owner=owner, pet=pet).detect_conflicts() == []
+
+
+def test_detect_conflicts_exact_same_start_time():
+    """Two tasks at the exact same start_time should be flagged as a conflict."""
+    owner = Owner(name="Jordan", available_minutes=120)
+    pet = Pet(name="Luna", species="cat", age=2)
+    pet.add_task(Task("Feed",  duration_minutes=10, priority="high", start_time="08:00"))
+    pet.add_task(Task("Brush", duration_minutes=10, priority="high", start_time="08:00"))
+
+    owner.add_pet(pet)
+    conflicts = Scheduler(owner=owner, pet=pet).detect_conflicts()
+    assert len(conflicts) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Edge case tests
+# ---------------------------------------------------------------------------
+
+def test_pet_with_no_tasks_returns_empty_plan():
+    """A pet with no tasks should produce an empty schedule."""
+    owner = Owner(name="Jordan", available_minutes=60)
+    pet = Pet(name="Mochi", species="dog", age=3)
+    owner.add_pet(pet)
+    assert Scheduler(owner=owner, pet=pet).build_plan() == []
+
+
+def test_pet_with_no_tasks_explain_plan_message():
+    """explain_plan for a pet with no tasks should return a readable message, not crash."""
+    owner = Owner(name="Jordan", available_minutes=60)
+    pet = Pet(name="Mochi", species="dog", age=3)
+    owner.add_pet(pet)
+    result = Scheduler(owner=owner, pet=pet).explain_plan()
+    assert "No tasks" in result
+    assert "Mochi" in result
+
+
+def test_same_priority_shorter_task_scheduled_first():
+    """When two tasks share the same priority, the shorter one should appear first."""
+    owner = Owner(name="Jordan", available_minutes=120)
+    pet = Pet(name="Mochi", species="dog", age=3)
+    pet.add_task(Task("Long walk",  duration_minutes=40, priority="high"))
+    pet.add_task(Task("Quick feed", duration_minutes=10, priority="high"))
+
+    owner.add_pet(pet)
+    plan = Scheduler(owner=owner, pet=pet).build_plan()
+    assert plan[0].title == "Quick feed"
+    assert plan[1].title == "Long walk"
+
+
+def test_filter_tasks_none_returns_all():
+    """filter_tasks(completed=None) should return all tasks regardless of status."""
+    pet = Pet(name="Mochi", species="dog", age=3)
+    t1 = Task("Walk",  duration_minutes=20, priority="high")
+    t2 = Task("Train", duration_minutes=10, priority="low")
+    t1.mark_complete()
+    pet.add_task(t1)
+    pet.add_task(t2)
+    assert len(pet.filter_tasks(completed=None)) == 2
