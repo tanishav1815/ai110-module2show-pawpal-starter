@@ -41,11 +41,11 @@ Conflict detection only flags exact `start_time` overlaps — it does not accoun
 
 AI was used across every phase: brainstorming class responsibilities and UML relationships in Phase 1, generating class skeletons and method stubs in Phase 2, wiring Streamlit session state in Phase 3, drafting algorithmic methods (sorting, conflict detection, recurrence) in Phase 4, and generating test cases in Phase 5.
 
-The most effective prompts were specific and code-grounded — e.g. "Based on my skeletons in pawpal_system.py, how should the Scheduler retrieve all tasks from the Owner's pets?" rather than open-ended questions. Providing context (file references, existing method names) consistently produced more useful output than asking in the abstract.
+The most effective prompts were specific and code-grounded , e.g. "Based on my skeletons in pawpal_system.py, how should the Scheduler retrieve all tasks from the Owner's pets?" rather than open-ended questions. Providing context (file references, existing method names) consistently produced more useful output than asking in the abstract.
 
 **b. Judgment and verification**
 
-When AI suggested using a single flat list of tasks on the `Owner` class (rather than delegating to `Pet`), that suggestion was rejected. A flat list on `Owner` would break encapsulation — it would mean `Owner` needs to know about `Task` internals directly, bypassing `Pet` entirely. The decision to keep `Pet` as the task owner and add `get_all_tasks()` as a convenience aggregator on `Owner` was verified by checking that the Scheduler still only needed to call `pet.get_tasks()` and that no circular dependency was introduced.
+When AI suggested using a single flat list of tasks on the `Owner` class (rather than delegating to `Pet`), that suggestion was rejected. A flat list on `Owner` would break encapsulation, it would mean `Owner` needs to know about `Task` internals directly, bypassing `Pet` entirely. The decision to keep `Pet` as the task owner and add `get_all_tasks()` as a convenience aggregator on `Owner` was verified by checking that the Scheduler still only needed to call `pet.get_tasks()` and that no circular dependency was introduced.
 
 Every AI-generated method was run through `main.py` and the test suite before being kept — the output had to match expected behavior, not just look plausible.
 
@@ -61,7 +61,7 @@ These tests matter because the scheduler's value depends entirely on correctness
 
 **b. Confidence**
 
-★★★★☆ — All 22 tests pass and cover the main happy paths and the most common edge cases. The next cases to test would be: tasks that span midnight (e.g. `start_time="23:50"` with a 30-minute duration), a pet with 20+ tasks under a 15-minute budget, and verifying that recurring task chains don't drift over many completions.
+— All 22 tests pass and cover the main happy paths and the most common edge cases. The next cases to test would be: tasks that span midnight (e.g. `start_time="23:50"` with a 30-minute duration), a pet with 20+ tasks under a 15-minute budget, and verifying that recurring task chains don't drift over many completions.
 
 ---
 
