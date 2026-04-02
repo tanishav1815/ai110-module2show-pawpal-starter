@@ -12,6 +12,72 @@ A busy pet owner needs help staying consistent with pet care. They want an assis
 
 Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
 
+## Features
+
+- **Owner & multi-pet management** — register an owner with a daily time budget and any number of pets
+- **Task tracking** — each task has a title, duration, priority, category, optional start time, and frequency (one-time / daily / weekly)
+- **Smart scheduling** — daily plan ordered by priority (high → medium → low); within the same priority, shorter tasks are preferred to maximise the number of completed tasks
+- **Recurring tasks** — marking a daily or weekly task complete automatically creates the next occurrence using `timedelta`
+- **Sorting** — view any pet's tasks sorted by duration (shortest first) to find quick wins
+- **Filtering** — filter tasks by completion status (pending / done / all) or by pet name
+- **Conflict detection** — the scheduler flags overlapping `start_time` slots with plain-English warnings in the UI
+- **Plan explanation** — every generated plan includes a human-readable time-slot breakdown and a summary of skipped tasks
+
+## 📸 Demo
+
+<a href="/course_images/ai110/pawpal_screenshot.png" target="_blank"><img src='/course_images/ai110/pawpal_screenshot.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>
+
+## System Architecture (UML)
+
+```mermaid
+classDiagram
+    class Task {
+        +str title
+        +int duration_minutes
+        +str priority
+        +str category
+        +bool completed
+        +str frequency
+        +date due_date
+        +str start_time
+        +is_doable(budget: int) bool
+        +mark_complete() Task|None
+        +describe() str
+    }
+    class Pet {
+        +str name
+        +str species
+        +int age
+        +list special_needs
+        +add_task(task: Task)
+        +get_tasks() list
+        +filter_tasks(completed) list
+    }
+    class Owner {
+        +str name
+        +int available_minutes
+        +list preferences
+        +add_pet(pet: Pet)
+        +get_pets() list
+        +get_all_tasks() list
+        +filter_tasks_by_pet(name) list
+    }
+    class Scheduler {
+        +Owner owner
+        +Pet pet
+        +int time_budget
+        +build_plan() list
+        +sort_by_duration() list
+        +detect_conflicts() list
+        +explain_plan() str
+    }
+    Owner "1" --> "1..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Scheduler --> Owner : reads budget from
+    Scheduler --> Pet : schedules tasks for
+    Task ..> Task : mark_complete() creates next occurrence
+```
+
 ## What you will build
 
 Your final app should:

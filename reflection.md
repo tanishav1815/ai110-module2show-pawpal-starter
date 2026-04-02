@@ -39,13 +39,15 @@ Conflict detection only flags exact `start_time` overlaps — it does not accoun
 
 **a. How you used AI**
 
-- How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
-- What kinds of prompts or questions were most helpful?
+AI was used across every phase: brainstorming class responsibilities and UML relationships in Phase 1, generating class skeletons and method stubs in Phase 2, wiring Streamlit session state in Phase 3, drafting algorithmic methods (sorting, conflict detection, recurrence) in Phase 4, and generating test cases in Phase 5.
+
+The most effective prompts were specific and code-grounded — e.g. "Based on my skeletons in pawpal_system.py, how should the Scheduler retrieve all tasks from the Owner's pets?" rather than open-ended questions. Providing context (file references, existing method names) consistently produced more useful output than asking in the abstract.
 
 **b. Judgment and verification**
 
-- Describe one moment where you did not accept an AI suggestion as-is.
-- How did you evaluate or verify what the AI suggested?
+When AI suggested using a single flat list of tasks on the `Owner` class (rather than delegating to `Pet`), that suggestion was rejected. A flat list on `Owner` would break encapsulation — it would mean `Owner` needs to know about `Task` internals directly, bypassing `Pet` entirely. The decision to keep `Pet` as the task owner and add `get_all_tasks()` as a convenience aggregator on `Owner` was verified by checking that the Scheduler still only needed to call `pet.get_tasks()` and that no circular dependency was introduced.
+
+Every AI-generated method was run through `main.py` and the test suite before being kept — the output had to match expected behavior, not just look plausible.
 
 ---
 
@@ -53,13 +55,13 @@ Conflict detection only flags exact `start_time` overlaps — it does not accoun
 
 **a. What you tested**
 
-- What behaviors did you test?
-- Why were these tests important?
+22 automated tests cover: `is_doable` true/false, `mark_complete` status change and recurrence (daily, weekly, one-time), task count after `add_task`, filtering by completion status (pending / done / all), scheduler budget enforcement, priority ordering, same-priority tiebreaker (shorter first), exclusion of completed tasks, empty-plan edge cases (no tasks, zero budget), `sort_by_duration` order, and conflict detection (overlap, exact same start time, no false positives).
+
+These tests matter because the scheduler's value depends entirely on correctness — a plan that silently drops high-priority tasks or misses a conflict is worse than no plan at all.
 
 **b. Confidence**
 
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
+★★★★☆ — All 22 tests pass and cover the main happy paths and the most common edge cases. The next cases to test would be: tasks that span midnight (e.g. `start_time="23:50"` with a 30-minute duration), a pet with 20+ tasks under a 15-minute budget, and verifying that recurring task chains don't drift over many completions.
 
 ---
 
@@ -67,12 +69,12 @@ Conflict detection only flags exact `start_time` overlaps — it does not accoun
 
 **a. What went well**
 
-- What part of this project are you most satisfied with?
+The clean separation between `Task`, `Pet`, `Owner`, and `Scheduler` made every phase easier. Because `Scheduler` was the only class with planning logic, adding features like conflict detection and sorting didn't require touching `Task` or `Pet` at all. That encapsulation paid off more than expected.
 
 **b. What you would improve**
 
-- If you had another iteration, what would you improve or redesign?
+The current scheduler is greedy — it picks tasks in priority order and stops when the budget runs out. A smarter version would use a knapsack-style approach to find the combination of tasks that maximizes total priority value within the time budget, rather than just taking the first tasks that fit. The greedy approach can leave time on the table when a single high-priority long task blocks several shorter medium-priority ones.
 
 **c. Key takeaway**
 
-- What is one important thing you learned about designing systems or working with AI on this project?
+AI is most useful as a fast first draft, not a final answer. Every suggestion — whether a method implementation, a test case, or a class design — needed to be evaluated against the actual system requirements. The skill that mattered most wasn't prompting; it was knowing enough about the design to recognize when an AI suggestion was technically correct but architecturally wrong.
